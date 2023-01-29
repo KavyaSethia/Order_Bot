@@ -3,15 +3,19 @@ import telebot
 import firebase_admin
 from firebase_admin import credentials,db,firestore
 import asyncio
+from flask import Flask,request
 cred = firebase_admin.credentials.Certificate("niyuktibot-firebase-adminsdk-hhm5t-7465ecf440.json")
 default_app = firebase_admin.initialize_app(cred, {
 	'databaseURL': "https://niyuktibot-default-rtdb.asia-southeast1.firebasedatabase.app/"
 	})
 firestore_client = firebase_admin.firestore.client()
+ref_for_material_table = firebase_admin.db.reference("/Material database")
 ref_for_user_table = firebase_admin.db.reference("/User")
 ref_for_orders_table = firebase_admin.db.reference("/Orders")
 API_TOKEN = "5884244973:AAFuFD8QCOhInWHnViHWHWmRpa9nfA7vLPg"
 bot = telebot.TeleBot(API_TOKEN)
+app = Flask(__name__)
+@app.route('/')
 @bot.message_handler(commands=['start', 'Start','help','I want to place an order'])
 def Send_Welcome(message):
     global msg,chat_id,ref_for_reminder_individual,user_id,user_info,bot_graph
@@ -42,10 +46,11 @@ def Run_asyncio_func(message):
     asyncio.run(CustomOrder(message))
 async def CustomOrder(message):
     global orderdetails
+
     orderdetails = {'Item':'Custom Tshirt','chatId':message.chat.id,'Date':str( date.today())}
     bot.reply_to(message,"price:500")
     print(message.chat.id)
-    await bot.send_photo(message.chat.id,"C:/Apps/SampleTshirt.jpg")
+    """await bot.send_photo("C:/Apps/SampleTshirt.jpg")"""
     msg = bot.reply_to(message, "Mention color")
     bot.register_next_step_handler(msg, Color)
 def Color(message):
@@ -94,9 +99,13 @@ def Quantity(message):
         msg = bot.reply_to(message, "You entered wrong Quantity.Try again ")
         bot.register_next_step_handler(msg, Send_Welcome)
     else:
-        orderdetails['Quantity']=Quantity_input
+        orderdetails['Quantity'] = Quantity_input
         msg = bot.reply_to(message, "Please tell mode of Payment(Card/Paytm/upi/google pay/COD)??")
         bot.register_next_step_handler(msg, Payment)
+    """data = ref_for_material_table.get()"""
+    """ Quantity = int(Quantity_input)
+    elif(data['Custom Tshirt'] >= Quantity): """
+
 
 def Payment(message):
     payment_input = message.text
@@ -195,3 +204,5 @@ def Answer(message):
         msg = bot.reply_to("I am learning right now.")
     bot.register_next_step_handler(msg, Send_Welcome)
 bot.polling()
+if __name__ == '__main__':
+    app.run(debug=True)
