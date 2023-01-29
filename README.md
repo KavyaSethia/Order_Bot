@@ -12,5 +12,5 @@ To Scan the QR Code in your Telegram,
 1. Open Telegram
 2. Go to Settings -> Devices
 
-#The Slide Deck to our bot
+# The Slide Deck to our bot
 https://www.canva.com/design/DAFZCMG5Nes/dPgOIp0pYK6gXtxhWcMMkw/view?utm_content=DAFZCMG5Nes&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
