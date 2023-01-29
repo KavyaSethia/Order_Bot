@@ -26,7 +26,7 @@ def Send_Welcome(message):
         user_info = user_info_including_key[key]
         print(user_info['chatId'])
         if user_info['chatId']==chat_id:
-            msg = bot.reply_to(message,'Hi ' + user_info['DisplayName']+ '\n\nWhat would like to place :'+ "  \n\n1. /Custom  \n\n2. /Tshirt \n\n3. /Shorts   \n\n4./Status \n\n5./Help \n\n6./Exit")
+            msg = bot.reply_to(message,'Hi ' + user_info['DisplayName']+ '\n\nWhat would like to place :'+ "  \n\n1. /Custom  \n\n2. /Tshirt \n\n3. /Shorts   \n\n4./Status \n\n5./Help \n\n6./PersonalPack \n\n7./Exit")
             break
     else:
         msg = bot.reply_to(message, 'Hello, Welcome to the Bot.\n\n Pls Enter a Username: ')
@@ -52,6 +52,11 @@ async def CustomOrder(message):
     print(message.chat.id)
     """await bot.send_photo("C:/Apps/SampleTshirt.jpg")"""
     msg = bot.reply_to(message, "Mention color")
+    bot.register_next_step_handler(msg, text_personal)
+def text_personal(message):
+    text_tshirt= message.text
+    orderdetails['text']=text_tshirt
+    msg = bot.reply_to(message, "Mention color ")
     bot.register_next_step_handler(msg, Color)
 def Color(message):
     color_text = message.text
@@ -84,6 +89,51 @@ def orderTshirt(message):
     bot.reply_to(message,"price:300")
     msg = bot.reply_to(message, "Mention color ")
     bot.register_next_step_handler(msg, Color)
+@bot.message_handler(commands=['PersonalPack'])
+def personalpack(message):
+    global orderdetails
+    orderdetails = {'Item':'Tshirt','chatId':message.chat.id,'Date':str( date.today())}
+    bot.reply_to(message,"price:300")
+    msg = bot.reply_to(message, "What text you want to add: ")
+    bot.register_next_step_handler(msg, text)
+def text(message):
+    text_tshirt= message.text
+    orderdetails['text']=text_tshirt
+    msg = bot.reply_to(message, "Mention color ")
+    bot.register_next_step_handler(msg, Color_personal)
+def Color_personal(message):
+    color_text = message.text
+    if('black' in color_text or 'Black' in color_text ):
+        color = 'Black'
+
+    elif ('red' in color_text or 'Red' in color_text  ):
+        color = 'Red'
+
+    elif ('yellow' in color_text or 'Yellow' in color_text):
+        color = 'Yellow'
+
+    elif ('blue' in color_text or 'Blue' in color_text):
+        color = 'Blue'
+
+    elif ('pink' in color_text or 'Pink' in color_text ):
+        color = 'Pink'
+
+    else:
+        color = 'Black'
+
+    orderdetails['Color']=color
+
+    msg = bot.reply_to(message,"Mention size(S,M,L) Tshirts ")
+    bot.register_next_step_handler(msg, Size_personal)
+def Size_personal(message):
+    Size_input = message.text
+    if ('s' not in Size_input and 'm' not in Size_input and 'l' not in Size_input):
+        msg = bot.reply_to(message, "You entered wrong size.Try again")
+        bot.register_next_step_handler(msg, Send_Welcome)
+    else:
+        orderdetails['Size']=Size_input
+        msg = bot.reply_to(message, "Please tell mode of Payment(Card/Paytm/upi/google pay/COD)??")
+        bot.register_next_step_handler(msg, Payment)
 def Size(message):
     Size_input = message.text
     if ('s' not in Size_input and 'm' not in Size_input and 'l' not in Size_input):
@@ -200,6 +250,8 @@ def Answer(message):
         msg = bot.reply_to(message,'We are available in Small,Medium and Large.Small-32.Medium-38.Large-42')
     elif 'colors'in Query or 'Colour' in Query:
         msg = bot.reply_to(message,'All products are available in Black,Blue,pink,red,yellow')
+    elif 'PersonalPack'in query:
+        msg = bot.reply_to(message,"It is an annual subscription model of our personalised t-shirt at just 300 rupees per month.You shall get a personalized t-shirt in a month")
     else:
         msg = bot.reply_to("I am learning right now.")
     bot.register_next_step_handler(msg, Send_Welcome)
